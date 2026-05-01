@@ -1,6 +1,6 @@
-# Agentgram Bootstrap
+# Agent Gram iOS Bootstrap
 
-This repository is a public fork of `TelegramMessenger/Telegram-iOS` with a thin project-specific bootstrap layer for Ethan's fork, `Agentgram`.
+This repository is a public fork of `TelegramMessenger/Telegram-iOS` with a thin project-specific bootstrap layer for Ethan's fork, `Agent Gram iOS`.
 
 The goal of this document is to get a local developer machine from "fresh clone" to "Telegram login screen opens in the iOS Simulator" without committing secrets or diverging far from upstream.
 
@@ -26,9 +26,9 @@ Telegram's upstream README requires the following for forks and third-party clie
 - Protect user privacy and follow Telegram security guidance.
 - Obtain your own `api_id` and `api_hash` for this app.
 
-For Agentgram, that means:
+For Agent Gram iOS, that means:
 
-- Use `Agentgram` or another clearly unofficial product name in user-facing branding.
+- Use `Agent Gram iOS` or another clearly unofficial product name in user-facing branding.
 - Replace Telegram branding assets before App Store distribution.
 - Do not commit Telegram API credentials, Apple credentials, phone numbers, or login codes.
 
@@ -179,7 +179,7 @@ This reports:
 - required Xcode and Bazel versions from `versions.json`
 - presence of Python, Swift, and `curl`
 - whether submodules look initialized
-- whether the local Agentgram config file exists
+- whether the local Agent Gram iOS config file exists
 
 ### Initialize local config
 

@@ -6,7 +6,7 @@ The goal of this document is to get a local developer machine from "fresh clone"
 
 ## Current machine blockers
 
-Observed in `/Users/ethansk/Projects/agentgram-ios` on 2026-05-02:
+Observed in `/Users/ethansk/Projects/AgentGram-iOS` on 2026-05-02:
 
 - Full Xcode is not installed. `/Applications/Xcode.app` is absent.
 - `xcodebuild -version` fails because the active developer directory is `/Library/Developer/CommandLineTools`, not full Xcode.

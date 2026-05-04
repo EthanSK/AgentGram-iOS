@@ -78,9 +78,9 @@ else
 fi
 
 if [ -f "$LOCAL_CONFIG" ]; then
-  printf 'Local Agentgram config: present (%s)\n' "$LOCAL_CONFIG"
+  printf 'Local Agent Gram config: present (%s)\n' "$LOCAL_CONFIG"
 else
-  printf 'Local Agentgram config: missing (%s)\n' "$LOCAL_CONFIG"
+  printf 'Local Agent Gram config: missing (%s)\n' "$LOCAL_CONFIG"
 fi
 
 printf 'Recommended generation command:\n'

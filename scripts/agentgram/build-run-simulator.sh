@@ -10,6 +10,7 @@ CACHE_DIR="${CACHE_DIR:-$HOME/telegram-bazel-cache}"
 BUILD_NUMBER="${BUILD_NUMBER:-10000}"
 OUT_DIR="${OUT_DIR:-build-output}"
 SIMULATOR_UDID="${SIMULATOR_UDID:-}"
+RESET_APP="${RESET_APP:-0}"
 
 if [ ! -f "$CONFIG_PATH" ]; then
   printf 'Missing local config: %s\n' "$CONFIG_PATH" >&2
@@ -87,6 +88,12 @@ printf 'Booting simulator: %s\n' "$SIMULATOR_UDID"
 xcrun simctl boot "$SIMULATOR_UDID" 2>/dev/null || true
 open -a Simulator --args -CurrentDeviceUDID "$SIMULATOR_UDID" || true
 xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+
+if [ "$RESET_APP" = "1" ]; then
+  printf 'Resetting existing simulator app data for %s...\n' "$BUNDLE_ID"
+  xcrun simctl terminate "$SIMULATOR_UDID" "$BUNDLE_ID" 2>/dev/null || true
+  xcrun simctl uninstall "$SIMULATOR_UDID" "$BUNDLE_ID" 2>/dev/null || true
+fi
 
 printf 'Installing %s...\n' "$BUNDLE_ID"
 xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"

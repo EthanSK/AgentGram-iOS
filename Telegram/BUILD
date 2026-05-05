@@ -1806,9 +1806,9 @@ filegroup(
 )
 
 ios_test_runner(
-    name = "iPhone-17__26.2",
+    name = "iPhone-17__26.4",
     device_type = "iPhone 17",
-    os_version = "26.2",
+    os_version = "26.4",
 )
 
 
@@ -1825,7 +1825,7 @@ ios_ui_test_suite(
     bundle_id = "org.telegram.Telegram-iOS-uitests",
     minimum_os_version = minimum_os_version,
     runners = [
-        ":iPhone-17__26.2",
+        ":iPhone-17__26.4",
     ],
     tags = ["manual"],
     test_host = "//Telegram",

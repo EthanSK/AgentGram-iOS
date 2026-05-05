@@ -4,17 +4,17 @@ This repository is a public fork of `TelegramMessenger/Telegram-iOS` with a thin
 
 The goal of this document is to get a local developer machine from "fresh clone" to "Telegram login screen opens in the iOS Simulator" without committing secrets or diverging far from upstream.
 
-## Current machine blockers
+## Current local status
 
-Observed in `/Users/ethansk/Projects/AgentGram-iOS` on 2026-05-02:
+Observed in `/Users/ethansk/Projects/AgentGram-iOS` on 2026-05-05:
 
-- Full Xcode is not installed. `/Applications/Xcode.app` is absent.
-- `xcodebuild -version` fails because the active developer directory is `/Library/Developer/CommandLineTools`, not full Xcode.
-- The Telegram build system requires Xcode `26.4` according to [`versions.json`](../versions.json).
-- App Store installation via `mas install 497799835` was not possible from this session because admin authentication was unavailable.
-- Git submodules are initialized and the worktree was clean when this bootstrap layer was added.
+- Full Xcode is installed at `/Applications/Xcode.app`.
+- The pinned Bazel binary has been fetched under `build-input/` by the project-generation path.
+- `scripts/agentgram/build-run-simulator.sh` can build the debug simulator IPA, unpack it, install it, and launch it on an iPhone Simulator.
+- The iPhone 17 Simulator reaches the Telegram welcome / phone-number login flow using the local ignored config at `build-input/agentgram/development.local.json`.
+- `scripts/agentgram/smoke-simulator.py` runs the safe Bazel/XCTest UI smoke test up to Telegram's phone-number confirmation screen.
 
-Because of those blockers, project generation, Xcode build, simulator launch, and Telegram sign-in could not be verified on this machine yet.
+Telegram account authentication is intentionally not automated by default. The smoke test stops before the final confirmation tap that can request a real Telegram login code.
 
 ## Telegram constraints
 
@@ -136,20 +136,33 @@ If Xcode opens but no iOS Simulator destination is available:
 3. Install at least one iOS runtime.
 4. Open `Window > Devices and Simulators` and confirm a simulator exists.
 
-### 5. Run in the simulator
+### 5. Build and run in the simulator
 
-After project generation, open the generated Xcode project and select an iPhone simulator destination.
+For the local simulator loop, use the helper script rather than opening Xcode manually:
 
-First-run target:
+```bash
+./scripts/agentgram/build-run-simulator.sh
+```
 
-- Build configuration: Debug
-- Destination: any iOS Simulator
+The script:
 
-The app should reach the Telegram login flow once:
+- uses `build-input/agentgram/development.local.json` by default
+- builds `Telegram/Telegram` for `sim_arm64`
+- unpacks `bazel-bin/Telegram/Telegram.ipa` into `build-output/sim-install/`
+- boots a preferred iPhone Simulator if needed
+- installs and launches the app bundle
 
-- Xcode is installed and selected correctly
-- the local config contains your own `api_id` / `api_hash`
-- the simulator runtime is installed
+Override the simulator if needed:
+
+```bash
+SIMULATOR_UDID=<device-udid> ./scripts/agentgram/build-run-simulator.sh
+```
+
+Reset the app's simulator data before installing when you want a clean login flow:
+
+```bash
+RESET_APP=1 ./scripts/agentgram/build-run-simulator.sh
+```
 
 ### 6. Device builds and App Store readiness
 
@@ -193,20 +206,47 @@ Optional custom output path:
 ./scripts/agentgram/init-local-config.sh /tmp/agentgram-dev.json --force
 ```
 
-## Safe verification performed in this change
+### Build, install, and launch the simulator app
 
-Verified locally without pretending a successful build:
+```bash
+./scripts/agentgram/build-run-simulator.sh
+```
 
-- repository is on `master` and was clean before these changes
+This is the fastest repeatable route for the current fork because it avoids Xcode UI state and directly uses the pinned Bazel toolchain.
+
+Use `RESET_APP=1` to wipe the app's simulator data before reinstalling.
+
+### Smoke-test the simulator login flow
+
+Run the safe XCTest smoke test:
+
+```bash
+./scripts/agentgram/smoke-simulator.py
+```
+
+The script runs `UITests/testPhoneConfirmation` via Bazel. It drives the app from the welcome screen to Telegram's phone-number confirmation screen using accessibility identifiers, then stops before any login-code request.
+
+Override the XCTest filter only when you intentionally want a different test:
+
+```bash
+TEST_FILTER=UITests/testLaunch ./scripts/agentgram/smoke-simulator.py
+```
+
+## Safe verification performed locally
+
+Verified on 2026-05-05:
+
+- repository is on `master`
 - submodules are initialized
-- upstream build path is `python3 build-system/Make/Make.py ... generateProject`
-- `versions.json` currently pins Xcode `26.4` and Bazel `8.4.2`
-- current machine cannot run `xcodebuild` because only Command Line Tools are active
+- `versions.json` pins Xcode `26.4` and Bazel `8.4.2`
+- debug simulator Bazel build completes successfully
+- `bazel-bin/Telegram/Telegram.ipa` is produced
+- the IPA unpacks to `build-output/sim-install/Payload/Telegram.app`
+- the app installs and launches on the iPhone 17 Simulator
+- the app reaches the welcome screen, phone-entry screen, and phone-confirmation screen under Bazel/XCTest
 
-Not verified on this machine:
+Still not performed by default:
 
-- Xcode project generation
-- simulator build
-- simulator install / launch
-- Telegram login
-- codesigning
+- requesting a real Telegram login code
+- completing Telegram account authentication
+- device build / signing verification

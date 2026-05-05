@@ -30,10 +30,7 @@ class UITests: XCTestCase {
         XCTAssert(app.wait(for: .runningForeground, timeout: 10.0))
     }
 
-    func testSignUp() throws {
-        deleteTestAccount(phone: "9996625296")
-        app.launch()
-
+    private func enterTestPhoneNumber() {
         // Welcome screen — tap Start Messaging
         let startButton = app.buttons["Auth.Welcome.StartButton"]
         XCTAssert(startButton.waitForExistence(timeout: 5.0))
@@ -56,6 +53,21 @@ class UITests: XCTestCase {
         XCTAssert(continueButton.waitForExistence(timeout: 3.0))
         XCTAssert(continueButton.isEnabled)
         continueButton.tap()
+    }
+
+    func testPhoneConfirmation() throws {
+        app.launch()
+        enterTestPhoneNumber()
+
+        // Stop at the confirmation dialog; this verifies the local UI flow without requesting a login code.
+        let confirmButton = app.buttons["Auth.PhoneConfirm.ContinueButton"]
+        XCTAssert(confirmButton.waitForExistence(timeout: 5.0))
+    }
+
+    func testSignUp() throws {
+        deleteTestAccount(phone: "9996625296")
+        app.launch()
+        enterTestPhoneNumber()
 
         // Confirmation dialog — tap Continue
         let confirmButton = app.buttons["Auth.PhoneConfirm.ContinueButton"]
